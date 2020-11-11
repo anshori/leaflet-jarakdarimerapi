@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Metadata -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <!-- Judul pada tab browser -->
+    <title>Jarak Dari Merapi</title>
+
+    <link rel="icon" href="../assets/icon/volcano-icon-round32.png">
+    <link rel="stylesheet" href="../assets/css/gh-fork-ribbon.css">
+
+    <!-- Leaflet CSS Library -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+
+    <!-- Style untuk tampilan peta fullscreen -->
+    <style>
+      html, body, #map {
+        height: 100%;
+        width: 100%;
+        margin: 0px;
+      }
+      b {
+        color: red;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Leaflet JavaScript Library -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+    <div class="github-fork-ribbon-wrapper right">
+      <div class="github-fork-ribbon">
+        <a href="https://github.com/anshori/leaflet-jarakdarimerapi">Fork me on GitHub</a>
+      </div>
+    </div>
+
+    <!-- HTML Block untuk menampilkan peta -->
+    <div id="map"></div>
+    <script>
+      /* Initial Map */
+      var map = L.map('map').setView([-7.541598, 110.446100],10); //lat, long, zoom
+      
+      /* Tile Basemap */
+      var basemap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        //attribution akan muncul di pojok kanan bawah
+        attribution: '<a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> | <a href="https://unsorry.net" target="_blank">unsorry@2020</a>'
+      });
+      basemap.addTo(map);
+
+      function onLocationFound(e) {
+        var puncakmerapi = [-7.541598, 110.446100];
+
+        /* Menghitung jarak antar 2 koordinat dengan satuan km
+            Untuk satuan meter tidak perlu dibagi 1000 */
+        var distance = (L.latLng(e.latlng).distanceTo(puncakmerapi) / 1000).toFixed(2);
+
+        var radius = (e.accuracy / 2).toFixed(1);
+        
+        // Membuat marker sesuai koordinat lokasi
+        locationMarker = L.marker(e.latlng);
+        locationMarker.addTo(map);
+        locationMarker.bindPopup("<p class='text-center'>Anda berada <b>" + distance + " km</b><br>dari puncak Merapi.<br>Akurasi GPS " + radius + " meter.</p>");
+        locationMarker.openPopup();
+
+        // Membuat garis antara koordinat lokasi dengan puncak merapi
+        var latlongline = [e.latlng,puncakmerapi];
+        var polyline = L.polyline(latlongline, {
+          color: 'red',
+          weight: 5,
+          opacity: 0.7,
+        });
+        polyline.addTo(map);
+      }
+
+      function onLocationError(e) {
+        alert(e.message);
+      }
+
+      map.on('locationfound', onLocationFound);
+      map.on('locationerror', onLocationError);
+
+      map.locate({setView: true, maxZoom: 12});
+    </script>
+  </body>
+</html>
